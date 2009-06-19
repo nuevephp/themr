@@ -1,10 +1,7 @@
 <?php
-
 /**
- * Tagger Plugin for Frog CMS <http://thehub.silentworks.co.uk/plugins/frog-cms/tagger.html>
- * Alternate Mirror site <http://www.tbeckett.net/articles/plugins/tagger.xhtml>
- * Copyright (C) 2008 Andrew Smith <a.smith@silentworks.co.uk>
- * Copyright (C) 2008 Tyler Beckett <tyler@tbeckett.net>
+ * Themr Plugin for Frog CMS <http://thehub.silentworks.co.uk/plugins/frog-cms/themr.html>
+ * Copyright (C) 2008 Andrew Smith <developer@thehub.silentworks.co.uk>
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -26,13 +23,13 @@
  * @package frog
  * @subpackage plugin.themr
  *
- * @author Andrew Smith <a.smith@silentworks.co.uk>
- * @version 1.1.0
+ * @author Andrew Smith <developer@thehub.silentworks.co.uk>
+ * @version 0.1.0
  * @since Frog version 0.9.5
  * @license http://www.gnu.org/licenses/gpl.html GPL License
  * @copyright Andrew Smith
  */
-
+ 
 // Include Themr Model
 include_once 'models/Themr.php';
 
@@ -41,7 +38,7 @@ include_once 'models/Themr.php';
  *
  * @package frog
  * @subpackage plugin.themr
- * @author Andrew Smith <a.smith@silentworks.co.uk>
+ * @author Andrew Smith <developer@thehub.silentworks.co.uk>
  * @since Frog version 0.9.5
  */
 class ThemrController extends PluginController
@@ -55,14 +52,15 @@ class ThemrController extends PluginController
     public function index($page = 0)
     {	
 		$allThemes = Themr::findAllThemes();
-
+		
+		$theme_info = Themr::findTheme('themr');
 		/*if (isset($page)) {
 			$CurPage = $page;
 		} else {
 			$CurPage = 0;
 		}
 		
-		$rowspage = Plugin::getSetting('rowspage', 'tagger');
+		$rowspage = Plugin::getSetting('rowspage', 'themr');
 
 		$start = $CurPage * $rowspage;
 
@@ -79,172 +77,215 @@ class ThemrController extends PluginController
         ));
     }
 
-    public function add()
+    public function install($id)
     {
-        // check if trying to save
-        if (get_request_method() == 'POST')
-            return $this->_add();
-
-        // check if user have already enter something
-        $tag = Flash::get('post_data');
-
-        if (empty($tag))
-            $tag = new Tagger;
-
-        $this->display('tagger/views/edit', array(
-            'action'  => 'add',
-            'tag' => $tag
-        ));
-    }
-
-    public function _add()
-    {
-        $data = $_POST['tag'];
-        Flash::set('post_data', (object) $data);
-
-        $tag = new Tag($data);
-
-        if ( ! $tag->save())
-        {
-            Flash::set('error', __('Tag has not been added. Name must be unique!'));
-            redirect(get_url('plugin/tagger', 'add'));
-        }
-        else Flash::set('success', __('Tag has been added!'));
-
-        // save and quit or save and continue editing?
-        if (isset($_POST['commit']))
-            redirect(get_url('plugin/tagger'));
-        else
-            redirect(get_url('plugin/tagger/edit/'.$tag->id));
-    }
-
-    function edit($id)
-    {
-        if ( ! $tag = Tagger::findById($id))
-        {
-            Flash::set('error', __('Tag not found!'));
-            redirect(get_url('plugin/tagger'));
-        }
-
-        // check if trying to save
-        if (get_request_method() == 'POST')
-            return $this->_edit($id);
-
-        $this->display('tagger/views/edit', array(
-            'action'  => 'edit',
-            'tag' => $tag
-        ));
-    }
-
-    function _edit($id)
-    {
-        $data = $_POST['tag'];
-
-        $data['id'] = $id;
-
-        $tag = new Tagger($data);
-
-        if ( ! $tag->save())
-        {
-            Flash::set('error', __('Tag :name has not been saved. Name must be unique!', array(':name'=>$tag->name)));
-            redirect(get_url('plugin/tagger/edit/'.$id));
-        }
-        else Flash::set('success', __('Tag :name has been saved!', array(':name'=>$tag->name)));
-
-        // save and quit or save and continue editing?
-        if (isset($_POST['commit']))
-            redirect(get_url('plugin/tagger'));
-        else
-            redirect(get_url('plugin/tagger/edit/'.$id));
-    }
-
-    function delete($id)
-    {
-        // find the user to delete
-        if ($tag = Record::findByIdFrom('Tag', $id))
-        {
-            if ($tag->delete()){
-                if(TaggerTag::deleteByTagId($id))
-                    Flash::set('success', __('Tag :name has been deleted!', array(':name'=>$tag->name)));
-            }
-            else
-                Flash::set('error', __('Tag :name has not been deleted!', array(':name'=>$tag->name)));
-        }
-        else Flash::set('error', __('Tag not found!'));
-
-        redirect(get_url('plugin/tagger'));
-    }
-
-	function save() {
-		$tag_type = mysql_escape_string($_POST['tag_type']);
-        $case = mysql_escape_string($_POST['case']);
-        $rowspage = mysql_escape_string($_POST['rowspage']);
-
-        $settings = array('tag_type' => $tag_type,
-                          'case' => $case,
-                          'rowspage' => $rowspage
-                         );
-
-        $ret = Plugin::setAllSettings($settings, 'tagger');
-
-        if ($ret)
-            Flash::set('success', __('The settings have been updated.'));
-        else
-            Flash::set('error', 'An error has occured.');
-
-        redirect(get_url('plugin/tagger/settings'));
-	}
-
-    /**
-	 * Ends relationship between page and tag
-	 *
-	 * @since 1.1.0
-	 *
-	 * @param string $ids
-	 */
-    function endrelationship($ids)
-    {
-    	$id = explode('-', $ids);
-
-    	$page_id = $id[0];
-    	$tag_id = $id[1];
-
-    	if ($page = Record::findByIdFrom('Page', $page_id))
-        {
-        	if($tag = Record::findByIdFrom('Tag', $tag_id)) {
-		    	if(TaggerTag::deletePageTagRelationship($page_id, $tag_id)) {
-		    		Flash::set('success', __('Page :page_name has been deleted from association with Tag :tag_name!', array(':page_name'=>$page->title, ':tag_name'=>$tag->name)));
-		    	}
-		    	else Flash::set('error', __('Nothing was deleted!'));
+    	$dir = FROG_ROOT.'/public/themes/'.$id.'/';
+		$files = $this->scan_directory_recursively($dir, 'php');
+		
+		$data = array();
+		$data['name'] = $id;
+		
+		// Layouts
+		$layouts = array();
+		$l = array();
+		
+		// Snippets
+		$snippets = array();
+		$s = array();
+		
+		foreach ($files as $file) {
+			switch ($file['name']) {
+				case 'layouts':
+					foreach ($file['content'] as $layout) {
+						
+						$layouts[] = $layout['name'];
+						
+						$l['name'] = Themr::theme_name($layout['name']);
+						$l['content_type'] = 'text/html';
+						$l['content'] = file_get_contents($layout['path']);
+						
+						$layout = new Layout($l);
+				        if( ! $layout->save()) {
+				            Flash::set('error', __('Layout has not been added. Name must be unique!'));
+				        }
+					}
+				break;
+				case 'snippets':
+					foreach ($file['content'] as $snippet) {
+						$snippets[] = $snippet['name'];
+						
+						$s['name'] = $snippet['name'];
+						$s['filter_id'] = '';
+						$s['content'] = file_get_contents($snippet['path']);
+						
+						$snippet = new Snippet($s);
+				        if ( ! $snippet->save()) {
+				            Flash::set('error', __('Snippet has not been added. Name must be unique!'));
+				        }
+					}
+				break;
 			}
 		}
-		else Flash::set('error', __('Page not found!'));
-
-		redirect(get_url('plugin/tagger'));
+		
+		// Serialize Layout and Snippet names
+		$data['layout'] = serialize($layouts);
+		$data['snippet'] = serialize($snippets);
+		
+		// Get Current Theme Info
+		$theme_info = Themr::findTheme($id);
+		
+		// Save into Themr database table
+		$theme = new Themr($data);
+		if (!$theme->save())
+        {
+            Flash::set('error', __('Theme has not been added. Name must be unique!'));
+            redirect(get_url('plugin/themr'));
+        } else {
+            Flash::set('success', __('Theme <b>:name</b> has been added!', array(':name'=>$theme_info['name'])));
+            redirect(get_url('plugin/themr'));
+        }
     }
-
-	/**
-	 * Settings for Tagger to change specific features
+    
+    /**
+	 * Uninstall a theme along with snippets that came with it.
 	 *
-	 * @since 1.1.0
+	 * @since 0.1.0
 	 *
 	 */
-	function settings() {
-        $tmp = Plugin::getAllSettings('tagger');
-        $settings = array('tag_type' => $tmp['tag_type'],
-                          'case' => $tmp['case'],
+    public function uninstall($id)
+    {
+    	$layoutUsed = 0;
+    	$theme = Record::findOneFrom('Themr', 'name=?', array($id));
+    	
+    	// Get Current Theme Info
+		$theme_info = Themr::findTheme($id);
+    	
+    	foreach (unserialize($theme->layout) as $layouts) {
+    		// find the user to delete
+	        if ($layout = Record::findOneFrom('Layout', 'name=?', array(Themr::theme_name($layouts))))
+	        {
+	            if ($layout->isUsed()){
+	                Flash::set('error', __('Theme <b>:theme</b> CANNOT be deleted because layout <b>:name</b> is being used!', array(':name'=>$layout->name, ':theme'=>$theme_info['name'])));
+	                $layoutUsed = 1;
+	            } else if ($layout->delete()) {
+	                Flash::set('success', __('Layout <b>:name</b> has been deleted!', array(':name'=>$layout->name)));
+	            }
+	            else
+	                Flash::set('error', __('Layout <b>:name</b> has not been deleted!', array(':name'=>$layout->name)));
+	        }
+	        else Flash::set('error', __('Layout not found!'));
+    	}
+    	
+    	if($layoutUsed !== 1){
+	    	foreach (unserialize($theme->snippet) as $snippets) {
+		    	// find the snippet to delete
+		        if ($snippet = Record::findOneFrom('Snippet', 'name=?', array($snippets)))
+		        {
+		            if ($snippet->delete())
+		            {
+		                Flash::set('success', __('Snippet <b>:name</b> has been deleted!', array(':name'=>$snippet->name)));
+		            }
+		            else
+		                Flash::set('error', __('Snippet <b>:name</b> has not been deleted!', array(':name'=>$snippet->name)));
+		        }
+		        else Flash::set('error', __('Snippet not found!'));
+			}
+    	
+			if($theme->delete()){
+				Flash::set('success', __('Theme <b>:name</b> has been uninstalled!', array(':name'=>$theme_info['name'])));
+				redirect(get_url('plugin/themr'));
+			} else {
+				Flash::set('error', __('Theme <b>:name</b> has not been uninstalled!', array(':name'=>$theme_info['name'])));
+				redirect(get_url('plugin/themr'));
+			}
+		} else {
+			redirect(get_url('plugin/themr'));
+		}
+    }
+	
+	function scan_directory_recursively($directory, $filter=FALSE)
+	{
+		if(substr($directory,-1) == '/') {
+			$directory = substr($directory,0,-1);
+		}
+		
+		if(!file_exists($directory) || !is_dir($directory)) {
+			return FALSE;
+		} elseif(is_readable($directory)) {
+			// we open the directory
+			$directory_list = opendir($directory);
+			
+			// and scan through the items inside
+			while (FALSE !== ($file = readdir($directory_list))) {
+				if($file != '.' && $file != '..') {
+					// we build the new path to scan
+					$path = $directory.'/'.$file;
+					
+					if(is_readable($path)) {
+						// we split the new path by directories
+						$subdirectories = explode('/',$path);
+						
+						// if the new path is a directory
+						if(is_dir($path)) {
+							// add the directory details to the file list
+							$directory_tree[] = array(
+								'path'    => $path,
+								'name'    => end($subdirectories),
+								'kind'    => 'directory',
+	
+								// we scan the new path by calling this function
+								'content' => $this->scan_directory_recursively($path, $filter));
+						// if the new path is a file
+						} elseif(is_file($path)) {
+							// get the file extension by taking everything after the last dot
+							$extension = end(explode('.',end($subdirectories)));
+	
+							// if there is no filter set or the filter is set and matches
+							if($filter === FALSE || $filter == $extension) {
+								// add the file details to the file list
+								$directory_tree[] = array(
+									'path'      => $path,
+									// 'name'      => end($subdirectories),
+									'name'      => current(explode('.',end($subdirectories))),
+									'extension' => $extension,
+									'size'      => filesize($path),
+									'kind'      => 'file');
+							}
+						}
+					}
+				}
+			}
+			// close the directory
+			closedir($directory_list); 
+	
+			// return file list
+			return $directory_tree;
+		} else {
+			return FALSE;	
+		}
+	}
+
+	/**
+	 * Settings for Themr to change specific features
+	 *
+	 * @since 0.1.0
+	 *
+	 */
+	/*function settings() {
+        $tmp = Plugin::getAllSettings('themr');
+        $settings = array(
                           'rowspage' => $tmp['rowspage']
                          );
-        $this->display('tagger/views/settings', $settings);
-    }
+        $this->display('themr/views/settings', $settings);
+    }*/
 
     /**
-	 * Documentation for Tagger
+	 * Documentation for Themr
 	 *
-	 * @since 1.0.0
+	 * @since 0.1.0
 	 */
 	public function documentation()
     {
-        $this->display('tagger/views/documentation');
+        $this->display('themr/views/documentation');
     }
-} // end TaggerController class
+} // end ThemrController class

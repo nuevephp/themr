@@ -8,7 +8,7 @@
 <?php foreach($themes as $theme): ?>
   <li id="snippet_<?php echo $theme['id']; ?>" class="snippet node <?php echo odd_even(); ?>">
   	<div class="screenshot">
-	  	<img src="<?php $screenshot = $theme['path'] . '/screenshot.png'; if(file_exists($screenshot)){ echo $screenshot; } else { echo '../frog/plugins/themr/images/screenshot.png'; } ?>" alt="<?php echo $theme['name'] ?>" width="180" height="140" />
+	  	<img src="<?php $screenshot = $theme['path'] . '/screenshot.png'; if(file_exists($screenshot)){ echo '/public/themes/' . $theme['id'] . '/screenshot.png'; } else { echo '../frog/plugins/themr/images/screenshot.png'; } ?>" alt="<?php echo $theme['name'] ?>" width="180" height="140" />
   	</div>
   	<div class="info">
 		<h4 class="header"><a href="<?php echo $theme['website']; ?>" target="_blank"><?php echo $theme['name']; ?></a> <span class="from"> by <?php echo $theme['author']; ?> | version <?php echo $theme['version']; ?></h4></span>
@@ -16,7 +16,7 @@
     </div>
     <div class="action">
 	    <?php if(Themr::isInstalled($theme['id'])) { ?>
-    		<a href="<?php echo get_url('plugin/themr/uninstall/'.$theme['id']); ?>" onclick="return confirm('<?php echo __('Are you sure you wish to delete'); ?> <?php echo $theme['name']; ?>?');"><?php echo __('Uninstall'); ?></a>
+    		<a href="<?php echo get_url('plugin/themr/uninstall/'.$theme['id']); ?>" onclick="return confirm('<?php echo __('Are you sure you wish to uninstall'); ?> <?php echo $theme['name']; ?>?');"><?php echo __('Uninstall'); ?></a>
 		<?php } else { ?>
 			<a href="<?php echo get_url('plugin/themr/install/'.$theme['id']); ?>"><?php echo __('Install'); ?></a>
     	<?php } ?>
@@ -25,7 +25,7 @@
 <?php endforeach; ?>
 </ul>
 
-<div class="pagination">
+<!-- <div class="pagination">
 <?php
   if ($currentpage == $lastpage) {
     $next = '<span class="disabled">Next Page</span>';
@@ -63,4 +63,4 @@
     echo "<span class=\"disabled\">Last Page</span>";
   }
 ?>
-</div>
+</div> -->

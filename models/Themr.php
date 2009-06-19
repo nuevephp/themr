@@ -1,10 +1,7 @@
 <?php 
-
 /**
- * Tagger Plugin for Frog CMS <http://thehub.silentworks.co.uk/plugins/frog-cms/tagger>
- * Alternate Mirror site <http://www.tbeckett.net/articles/plugins/tagger.xhtml>
- * Copyright (C) 2008 Andrew Smith <a.smith@silentworks.co.uk>
- * Copyright (C) 2008 Tyler Beckett <tyler@tbeckett.net>
+ * Themr Plugin for Frog CMS <http://thehub.silentworks.co.uk/plugins/frog-cms/themr.html>
+ * Copyright (C) 2008 Andrew Smith <developer@thehub.silentworks.co.uk>
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -19,71 +16,54 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
+ 
 /**
- * class PagePart
+ * class Themr
  *
- * @author Philippe Archambault <philippe.archambault@gmail.com>
- * @since  0.8.7
+ * @package frog
+ * @subpackage plugin.themr
+ * @author Andrew Smith <developer@thehub.silentworks.co.uk>
+ * @since Frog version 0.9.5
  */
-
 class Themr extends Record
 {   
+	const TABLE_NAME = 'themr';
+	
     public $name;
     public $count;
     static $themes_infos = array();
     
-    public static function find($args = null)
+    public $created_on;
+    public $updated_on;
+    public $created_by_id;
+    public $updated_by_id;
+    
+    public function beforeInsert()
     {
-        
-        // Collect attributes...
-        $where    = isset($args['where']) ? trim($args['where']) : '';
-        $order_by = isset($args['order']) ? trim($args['order']) : '';
-        $offset   = isset($args['offset']) ? (int) $args['offset'] : 0;
-        $limit    = isset($args['limit']) ? (int) $args['limit'] : 0;
-
-        // Prepare query parts
-        $where_string = empty($where) ? '' : "WHERE $where";
-        $order_by_string = empty($order_by) ? '' : "ORDER BY $order_by";
-        $limit_string = $limit > 0 ? "LIMIT $offset, $limit" : '';
-
-        $tablename = self::tableNameFromClassName('Tag');
-
-        // Prepare SQL
-        $sql = "SELECT * FROM $tablename".
-               " $where_string $order_by_string $limit_string";
-
-        $stmt = self::$__CONN__->prepare($sql);
-        $stmt->execute();
-
-        // Run!
-        if ($limit == 1)
+        $this->created_by_id = AuthUser::getId();
+        $this->created_on = date('Y-m-d H:i:s');
+        return true;
+    }
+    
+    public function beforeUpdate()
+    {
+        $this->updated_by_id = AuthUser::getId();
+        $this->updated_on = date('Y-m-d H:i:s');
+        return true;
+    }
+    
+    public function beforeSave()
+    {
+        // apply filter to save is generated result in the database
+        if ( ! empty($this->filter_id))
         {
-            return $stmt->fetchObject('Tag');
+            $this->content_html = Filter::get($this->filter_id)->apply($this->content);
         }
         else
         {
-            $objects = array();
-            while ($object = $stmt->fetchObject('Tag'))
-            {
-                $objects[] = $object;
-            }
-            return $objects;
+            $this->content_html = $this->content;
         }
-    
-    } // find
-    
-    public static function findAll($args = null)
-    {
-        return self::find($args);
-    }
-    
-    public static function findById($id)
-    {
-        return self::find(array(
-            'where' => self::tableNameFromClassName('Tag').'.id='.(int)$id,
-            'limit' => 1
-        ));
+        return true;
     }
     
     /**
@@ -91,7 +71,7 @@ class Themr extends Record
 	 *
 	 * @return array
 	 */
-	static function findAllThemes()
+	public static function findAllThemes()
 	{
 		$dir = FROG_ROOT.'/public/themes/';
 
@@ -122,7 +102,50 @@ class Themr extends Record
 		return self::$themes_infos;
 	}
 	
-	static function isInstalled($id) {
+	/**
+	 * Getting the information for theme by its id
+	 *
+	 * @since 0.1.1
+	 *
+	 */
+	public function findTheme($id)
+	{
+		$dir  = FROG_ROOT.'/public/themes/'.$id.'/';
+
+		if ($handle = opendir($dir))
+		{
+			if ( is_dir($dir) !== 0)
+			{
+				$xml_file = $dir . 'theme.xml';
+				if (file_exists($xml_file)) {
+					$xml = simplexml_load_file($xml_file);
+					$themes_infos['id'] 		 = (string) $id;
+					$themes_infos['name'] 		 = (string) $xml->name;
+					$themes_infos['author'] 	 = (string) $xml->author;
+					$themes_infos['website']	 = (string) $xml->website;
+					$themes_infos['description'] = (string) $xml->description;
+					$themes_infos['version'] 	 = (string) $xml->version;
+					$themes_infos['path'] 		 = (string) $dir;
+				}
+			}
+			closedir($handle);
+		}
+
+		ksort($themes_infos);
+		return $themes_infos;
+	}
+	
+	public static function isInstalled($theme_id) {
+		$theme = Record::findOneFrom('Themr', 'name=?', array($theme_id));
 		
+		if(isset($theme->id)){
+			return true;
+		}
+		
+		return false;
+	}
+	
+	public function theme_name($string){
+		return ucwords(str_replace('_', ' ', $string));
 	}
 }

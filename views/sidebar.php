@@ -1,6 +1,5 @@
 <?php if (Dispatcher::getAction() != 'view'): ?>
 
-<p class="button"><a href="<?php echo get_url('plugin/themr/settings'); ?>"><img src="../frog/plugins/tagger/images/settings.png" align="middle" alt="page icon" /> <?php echo __('Settings'); ?></a></p>
 <p class="button"><a href="<?php echo get_url('plugin/themr/documentation'); ?>"><img src="../frog/plugins/tagger/images/documentation.png" align="middle" alt="snippet icon" /> <?php echo __('Documentation'); ?></a></p>
 
 <div class="box">
