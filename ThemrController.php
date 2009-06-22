@@ -187,6 +187,8 @@ class ThemrController extends PluginController
 	
 	function scan_directory_recursively($directory, $filter=FALSE)
 	{
+		$directory_tree = array();
+		
 		if(substr($directory,-1) == '/') {
 			$directory = substr($directory,0,-1);
 		}
@@ -246,21 +248,7 @@ class ThemrController extends PluginController
 			return FALSE;	
 		}
 	}
-
-	/**
-	 * Settings for Themr to change specific features
-	 *
-	 * @since 0.1.0
-	 *
-	 */
-	/*function settings() {
-        $tmp = Plugin::getAllSettings('themr');
-        $settings = array(
-                          'rowspage' => $tmp['rowspage']
-                         );
-        $this->display('themr/views/settings', $settings);
-    }*/
-
+	
     /**
 	 * Documentation for Themr
 	 *

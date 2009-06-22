@@ -52,20 +52,6 @@ class Themr extends Record
         return true;
     }
     
-    public function beforeSave()
-    {
-        // apply filter to save is generated result in the database
-        if ( ! empty($this->filter_id))
-        {
-            $this->content_html = Filter::get($this->filter_id)->apply($this->content);
-        }
-        else
-        {
-            $this->content_html = $this->content;
-        }
-        return true;
-    }
-    
     /**
 	 * Find all themes installed in the themes folder
 	 *
@@ -79,7 +65,6 @@ class Themr extends Record
 		{
 			while (false !== ($theme_id = readdir($handle)))
 			{
-				// if ( ! isset(self::$plugins[$theme_id]) && is_dir($dir.$theme_id) && strpos($theme_id, '.') !== 0)
 				if ( is_dir($dir.$theme_id) && strpos($theme_id, '.') !== 0)
 				{
 					$xml_file = $dir . $theme_id . '/theme.xml';
