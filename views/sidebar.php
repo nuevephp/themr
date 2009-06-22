@@ -4,7 +4,7 @@
 
 <div class="box">
     <h2><?php echo __('What is a Themr?'); ?></h2>
-    <p><?php echo __('Themr is a plugin that helps to organise themes.'); ?></p>
+    <p><?php echo __('Themr is a plugin that helps to organise and manage themes.'); ?></p>
 </div>
 
 <div class="box">

@@ -15,10 +15,12 @@
 	    <p><?php echo $theme['description']; ?></p>
     </div>
     <div class="action">
-	    <?php if(Themr::isInstalled($theme['id'])) { ?>
-    		<a href="<?php echo get_url('plugin/themr/uninstall/'.$theme['id']); ?>" onclick="return confirm('<?php echo __('Are you sure you wish to uninstall'); ?> <?php echo $theme['name']; ?>?');"><?php echo __('Uninstall'); ?></a>
-		<?php } else { ?>
-			<a href="<?php echo get_url('plugin/themr/install/'.$theme['id']); ?>"><?php echo __('Install'); ?></a>
+    	<?php if($theme['id'] !== 'themr') { ?>
+		    <?php if(Themr::isInstalled($theme['id'])) { ?>
+	    		<a href="<?php echo get_url('plugin/themr/uninstall/'.$theme['id']); ?>" onclick="return confirm('<?php echo __('Are you sure you wish to uninstall'); ?> <?php echo $theme['name']; ?>?');"><?php echo __('Uninstall'); ?></a>
+			<?php } else { ?>
+				<a href="<?php echo get_url('plugin/themr/install/'.$theme['id']); ?>"><?php echo __('Install'); ?></a>
+	    	<?php } ?>
     	<?php } ?>
     </div>
   </li>

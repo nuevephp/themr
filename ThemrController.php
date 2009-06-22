@@ -52,26 +52,8 @@ class ThemrController extends PluginController
     public function index($page = 0)
     {	
 		$allThemes = Themr::findAllThemes();
-		
 		$theme_info = Themr::findTheme('themr');
-		/*if (isset($page)) {
-			$CurPage = $page;
-		} else {
-			$CurPage = 0;
-		}
 		
-		$rowspage = Plugin::getSetting('rowspage', 'themr');
-
-		$start = $CurPage * $rowspage;
-
-		$totalrecords = count($totalTags);
-
-		$lastpage = ceil($totalrecords / $rowspage);
-		if($totalrecords <= $rowspage) { $lastpage = 0; } else { $lastpage = abs($lastpage - 1); }
-
-		/* Get data. */
-		// $tags = Tagger::findAll(array('offset' =>  $start,'limit' => $rowspage));
-
         $this->display('themr/views/index', array(
             'themes' => $allThemes
         ));
