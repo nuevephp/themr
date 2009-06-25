@@ -11,7 +11,15 @@
 	  	<img src="<?php $screenshot = $theme['path'] . '/screenshot.png'; if(file_exists($screenshot)){ echo '/public/themes/' . $theme['id'] . '/screenshot.png'; } else { echo '../frog/plugins/themr/images/screenshot.png'; } ?>" alt="<?php echo $theme['name'] ?>" width="180" height="140" />
   	</div>
   	<div class="info">
-		<h4 class="header"><a href="<?php echo $theme['website']; ?>" target="_blank"><?php echo $theme['name']; ?></a> <span class="from"> by <?php echo $theme['author']; ?> | version <?php echo $theme['version']; ?></h4></span>
+		<h4 class="header">
+			<?php if ($theme['website']): ?><a href="<?php echo $theme['website']; ?>" target="_blank"><?php endif ?>
+				<?php echo $theme['name']; ?>
+			<?php if ($theme['website']): ?></a><?php endif ?>
+			<span class="from"> by 
+			<?php if ($theme['author_website']): ?><a href="<?php echo $theme['author_website']; ?>" target="_blank"><?php endif ?>
+				<?php echo $theme['author']; ?>
+			<?php if ($theme['author_website']): ?></a><?php endif ?>
+			| version <?php echo $theme['version']; ?></h4></span>
 	    <p><?php echo $theme['description']; ?></p>
     </div>
     <div class="action">

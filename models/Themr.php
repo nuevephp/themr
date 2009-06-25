@@ -73,6 +73,7 @@ class Themr extends Record
 						self::$themes_infos[$theme_id]['id'] 			= (string) $theme_id;
 						self::$themes_infos[$theme_id]['name'] 			= (string) $xml->name;
 						self::$themes_infos[$theme_id]['author'] 		= (string) $xml->author;
+						self::$themes_infos[$theme_id]['author_website'] = (string) $xml->author_website;
 						self::$themes_infos[$theme_id]['website'] 		= (string) $xml->website;
 						self::$themes_infos[$theme_id]['description'] 	= (string) $xml->description;
 						self::$themes_infos[$theme_id]['version'] 		= (string) $xml->version;
@@ -104,13 +105,13 @@ class Themr extends Record
 				$xml_file = $dir . 'theme.xml';
 				if (file_exists($xml_file)) {
 					$xml = simplexml_load_file($xml_file);
-					$themes_infos['id'] 		 = (string) $id;
-					$themes_infos['name'] 		 = (string) $xml->name;
-					$themes_infos['author'] 	 = (string) $xml->author;
-					$themes_infos['website']	 = (string) $xml->website;
-					$themes_infos['description'] = (string) $xml->description;
-					$themes_infos['version'] 	 = (string) $xml->version;
-					$themes_infos['path'] 		 = (string) $dir;
+					$themes_infos['id'] 		 	= (string) $id;
+					$themes_infos['name'] 		 	= (string) $xml->name;
+					$themes_infos['author_website'] = (string) $xml->author_website;
+					$themes_infos['website']	 	= (string) $xml->website;
+					$themes_infos['description'] 	= (string) $xml->description;
+					$themes_infos['version'] 	 	= (string) $xml->version;
+					$themes_infos['path'] 		 	= (string) $dir;
 				}
 			}
 			closedir($handle);

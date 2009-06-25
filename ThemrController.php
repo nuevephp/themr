@@ -52,7 +52,6 @@ class ThemrController extends PluginController
     public function index($page = 0)
     {	
 		$allThemes = Themr::findAllThemes();
-		$theme_info = Themr::findTheme('themr');
 		
         $this->display('themr/views/index', array(
             'themes' => $allThemes
