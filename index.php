@@ -21,7 +21,7 @@ Plugin::setInfos(array(
     'id'          => 'themr',
     'title'       => 'Themr',
     'description' => 'Add themes to your website.',
-    'version'     => '0.1.1',
+    'version'     => '0.1.2',
     'license'     => 'GPL',
     'author'      => 'Andrew Smith',
     'website'     => 'http://thehub.silentworks.co.uk/plugins/frog-cms/themr.html',
@@ -29,4 +29,4 @@ Plugin::setInfos(array(
     'require_frog_version' => '0.9.5')
 );
 
-Plugin::addController('themr', 'Themr');
+Plugin::addController('themr', 'Themr', 'administrator');
